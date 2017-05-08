@@ -10,8 +10,10 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     TextView longitudeValueBest, latitudeValueBest;
     TextView longitudeValueGPS, latitudeValueGPS;
     TextView longitudeValueNetwork, latitudeValueNetwork;
+    int MY_PERMISSION_REQUEST_ACCESS_FINE_LOCATION;
 
 
     @Override
@@ -76,44 +79,51 @@ public class MainActivity extends AppCompatActivity {
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void toggleGPSUpdates(View view) {
         if (!checkLocation())
             return;
         Button button = (Button) view;
-        if (button.getText().equals(getResources().getString(R.string.pause))) {
-            locationManager.removeUpdates(locationListenerGPS);
-            button.setText(R.string.resume);
-        } else {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            }
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 2 * 20 * 1000, 10, locationListenerGPS);
-            button.setText(R.string.pause);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
+        else {
+            if (button.getText().equals(getResources().getString(R.string.pause))) {
+                locationManager.removeUpdates(locationListenerGPS);
+                button.setText(R.string.resume);
+            } else {
+
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2 * 20 * 1000, 10, locationListenerGPS);
+                button.setText(R.string.pause);
+            }
+        }
+
     }
 
     public void toggleBestUpdates(View view) {
         if (!checkLocation())
             return;
         Button button = (Button) view;
-        if (button.getText().equals(getResources().getString(R.string.pause))) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            }
-            locationManager.removeUpdates(locationListenerBest);
-            button.setText(R.string.resume);
-        } else {
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            criteria.setAltitudeRequired(false);
-            criteria.setBearingRequired(false);
-            criteria.setCostAllowed(true);
-            criteria.setPowerRequirement(Criteria.POWER_LOW);
-            String provider = locationManager.getBestProvider(criteria, true);
-            if (provider != null) {
-                locationManager.requestLocationUpdates(provider, 2 * 20 * 1000, 10, locationListenerBest);
-                button.setText(R.string.pause);
-                Toast.makeText(this, "Best Provider is " + provider, Toast.LENGTH_LONG).show();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        }
+        else {
+            if (button.getText().equals(getResources().getString(R.string.pause))) {
+                locationManager.removeUpdates(locationListenerBest);
+                button.setText(R.string.resume);
+            } else {
+                Criteria criteria = new Criteria();
+                criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                criteria.setAltitudeRequired(false);
+                criteria.setBearingRequired(false);
+                criteria.setCostAllowed(true);
+                criteria.setPowerRequirement(Criteria.POWER_LOW);
+                String provider = locationManager.getBestProvider(criteria, true);
+                if (provider != null) {
+                    locationManager.requestLocationUpdates(provider, 2 * 20 * 1000, 10, locationListenerBest);
+                    button.setText(R.string.pause);
+                    Toast.makeText(this, "Best Provider is " + provider, Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -122,17 +132,20 @@ public class MainActivity extends AppCompatActivity {
         if (!checkLocation())
             return;
         Button button = (Button) view;
-        if (button.getText().equals(getResources().getString(R.string.pause))) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            }
-            locationManager.removeUpdates(locationListenerNetwork);
-            button.setText(R.string.resume);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
         else {
-            locationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, 20 * 1000, 10, locationListenerNetwork);
-            Toast.makeText(this, "Network provider started running", Toast.LENGTH_LONG).show();
-            button.setText(R.string.pause);
+            if (button.getText().equals(getResources().getString(R.string.pause))) {
+                locationManager.removeUpdates(locationListenerNetwork);
+                button.setText(R.string.resume);
+            }
+            else {
+                locationManager.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER, 20 * 1000, 10, locationListenerNetwork);
+                Toast.makeText(this, "Proveedor de red iniciado", Toast.LENGTH_LONG).show();
+                button.setText(R.string.pause);
+            }
         }
     }
 

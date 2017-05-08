@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Vendedor</string>
-    <string name="resume">Resume location updates</string>
-    <string name="pause">Pausdo</string>
+    <string name="resume">Resumir actualización de posición</string>
+    <string name="pause">Pausar</string>
 </resources>
