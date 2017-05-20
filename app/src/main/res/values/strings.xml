@@ -2,4 +2,5 @@
     <string name="app_name">TraKingTrApp</string>
     <string name="resume">Resumir actualización de posición</string>
     <string name="pause">Pausar</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
