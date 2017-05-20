@@ -1,5 +1,9 @@
 package com.movil.mauricio_taborda.vendedor;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -10,9 +14,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private BroadcastReceiver broadcastReceiver;
+    private Punto punto;
+    private Recorrido recorrido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +32,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        recorrido = new Recorrido(Calendar.getInstance().toString(), new ArrayList<Punto>());
     }
 
 
@@ -38,9 +49,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        if(broadcastReceiver == null) {
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    double longitud = (double) intent.getExtras().get("Longitud");
+                    double latitud = (double) intent.getExtras().get("Latitud");
+                    LatLng point = new LatLng(latitud, longitud);
+                    mMap.addMarker(new MarkerOptions().position(point).title("Marcador"));
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter("Actualización de posicion"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(adelita));
     }
 }

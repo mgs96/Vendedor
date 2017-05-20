@@ -47,13 +47,14 @@ public class MainActivity extends AppCompatActivity {
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    String[] coordinates = intent.getExtras().get("Coordenadas").toString().split(" ");
-                    longitudeValue.setText(coordinates[0]);
-                    latitudeValue.setText(coordinates[1]);
+                    String longitud = (String) intent.getExtras().get("Longitud");
+                    String latitud = (String) intent.getExtras().get("Latitud");
+                    longitudeValue.setText(longitud);
+                    latitudeValue.setText(latitud);
                 }
             };
         }
-        registerReceiver(broadcastReceiver, new IntentFilter("Actualización de posición"));
+        registerReceiver(broadcastReceiver, new IntentFilter("Actualización de posicion"));
     }
 
     @Override
