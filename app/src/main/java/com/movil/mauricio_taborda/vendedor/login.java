@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -26,6 +28,8 @@ public class login extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseDatabase db;
     private static final int RC_SIGN_IN = 0;
+    Button btn;
+    LinearLayout linearLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +37,27 @@ public class login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
-
+        btn = (Button) findViewById(R.id.button2);
+        linearLoading = (LinearLayout) findViewById(R.id.linearLoadind);
         if(mAuth.getCurrentUser() != null){
             afterLogin();
-            //user signed
-        }else {
-            startActivityForResult(AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setProviders(AuthUI.EMAIL_PROVIDER, AuthUI.GOOGLE_PROVIDER)
-                    .build(), RC_SIGN_IN);
         }
+    }
+
+    private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
+    private long mBackPressed;
+
+    @Override
+    public void onBackPressed()
+    {
+        if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis())
+        {
+            super.onBackPressed();
+            return;
+        }
+        else { Toast.makeText(getBaseContext(), "Toca otra vez para salir", Toast.LENGTH_SHORT).show(); }
+
+        mBackPressed = System.currentTimeMillis();
     }
 
     @Override
@@ -57,12 +72,21 @@ public class login extends AppCompatActivity {
     }
     public int cont = 0;
     public void afterLogin(){
+        linearLoading.setVisibility(View.VISIBLE);
+        btn.setEnabled(false);
         final DatabaseReference dbReference = db.getReference("Usuarios");
         dbReference.orderByChild("email").equalTo(mAuth.getCurrentUser().getEmail()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 User user = dataSnapshot.getValue(User.class);
-                Toast.makeText(getApplicationContext(), user.role, Toast.LENGTH_SHORT).show();
+                Intent i;
+                if(user.role == "owner"){
+                    i = new Intent(getApplicationContext(), MapsActivity.class);
+                }else{
+                    i = new Intent(getApplicationContext(), MainActivity.class);
+                }
+                startActivity(i);
+                finish();
             }
 
             @Override
